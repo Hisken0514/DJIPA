@@ -1,0 +1,27 @@
+# 現場擴音（第一版）
+
+macOS 選單列小工具：任意麥克風 → Mac → 喇叭或耳機（以 DJI Mic 3 → HDMI 開發測試）。
+
+## 使用
+1. `./build.sh` 後開啟 `build/現場擴音.app`，選單列會出現麥克風圖示。
+2. 確認麥克風與輸出裝置，**喇叭音量先調小**。
+3. 按「開始擴音」，第一次請允許麥克風權限。
+4. 再慢慢調高音量。
+
+- 音量：麥克風增益。輸出上限：超過就自動壓低。
+- 換裝置或拔除裝置會停止擴音，需再按開始。
+- 擴音期間不會自動睡眠。
+- 低頻切除：濾掉 100 Hz 以下。
+- 噪音閘門：低於門檻時降 24 dB。門檻設在環境噪音與講話音量之間。
+- 自動嘯叫抑制：偵測約 0.5 秒的持續單音後削掉該頻率，最多 6 個。停止擴音會清除。長音、口哨可能被誤判。
+- 沒有回音消除；嘯叫抑制無法完全防止回授。請關掉 QuickTime 監聽，避免重複出聲。
+
+## 下載版安裝
+Release 的 App 以 Apple Development 憑證簽名，**未經 Apple 公證**，只支援 Apple Silicon、macOS 13 以上。
+其他 Mac 開啟時會被阻擋，需到 系統設定 → 隱私權與安全性 按「仍要打開」。
+
+## 開發
+- 簽名打包：`SIGN_IDENTITY="憑證名稱" ./build.sh`
+- 重新產生圖示：`swift Tools/make_icon.swift build/AppIcon.iconset && iconutil -c icns build/AppIcon.iconset -o Resources/AppIcon.icns`
+- `./test.sh`：離線測試限幅、靜音與效果器（不發聲）。
+- `build/現場擴音.app/Contents/MacOS/DJIPA --list`：列出音訊裝置。
