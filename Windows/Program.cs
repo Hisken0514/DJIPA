@@ -143,7 +143,7 @@ sealed class MainForm : Form
     public MainForm(bool showAtStart)
     {
         Text = "現場擴音";
-        Icon = new Icon(Path.Combine(AppContext.BaseDirectory, "AppIcon.ico"));
+        Icon = new Icon(typeof(MainForm).Assembly.GetManifestResourceStream("AppIcon.ico")!); // 內嵌資源，單一檔案發佈也讀得到
         FormBorderStyle = FormBorderStyle.FixedToolWindow;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.Manual;
@@ -288,6 +288,7 @@ sealed class MainForm : Form
         {
             Stop();
             message = "裝置已拔除，擴音已停止";
+            UpdateUi();
         }
         if (session != null) return; // 擴音中不動選單
         inputs = newIn; outputs = newOut;
@@ -307,7 +308,7 @@ sealed class MainForm : Form
 
     // 不自動選內建喇叭以免嘯叫
     static bool IsDisplayAudio(string n) =>
-        new[] { "HDMI", "DisplayPort", "Display Audio", "High Definition Audio" }
+        new[] { "HDMI", "DisplayPort", "Display Audio", "NVIDIA High Definition Audio", "AMD High Definition Audio" }
             .Any(k => n.Contains(k, StringComparison.OrdinalIgnoreCase))
         && !n.Contains("Realtek", StringComparison.OrdinalIgnoreCase);
 
@@ -341,8 +342,8 @@ sealed class MainForm : Form
         if (session != null) return;
         if (Input is not { } i || Output is not { } o) { message = "請先選擇麥克風與輸出裝置"; return; }
         try { session = new Session(i, o); }
-        catch (SessionError e) { message = e.Message; return; }
-        session.Failed += m => BeginInvoke(() => { Stop(); message = m + "，擴音已停止"; });
+        catch (SessionError e) { message = e.Message; UpdateUi(); return; }
+        session.Failed += m => BeginInvoke(() => { Stop(); message = m + "，擴音已停止"; UpdateUi(); });
         muted = false; message = "";
         lastCallbacks = 0; lastProgress = DateTime.Now;
         Apply();
@@ -386,7 +387,7 @@ sealed class MainForm : Form
         inputLevel = Level(inPeak, inputLevel);
         inputDB = Math.Max(20 * Math.Log10(Math.Max(inPeak, 0.00003)), inputDB - 1);
         gateOpen = e.Fx.GateOpened; e.Fx.GateOpened = false;
-        e.Fx.Analyze();
+        if (!muted) e.Fx.Analyze(); // 靜音時不分析，避免把靜音中的持續音當成嘯叫
         notches = e.Fx.NotchFreq.Select(f => (int)Math.Round(f)).Where(f => f > 0).ToList();
         outputLevel = Level(e.TakeOutputPeak(), outputLevel);
         if (e.TakeLimited()) limitingUntil = DateTime.Now.AddSeconds(0.5);
@@ -398,6 +399,7 @@ sealed class MainForm : Form
         {
             Stop();
             message = "音訊中斷，擴音已停止，請再按一次開始";
+            UpdateUi();
             return;
         }
         UpdateUi();

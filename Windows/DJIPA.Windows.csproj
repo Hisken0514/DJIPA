@@ -16,6 +16,6 @@
     <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AppIcon.ico" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="AppIcon.ico" LogicalName="AppIcon.ico" />
   </ItemGroup>
 </Project>
