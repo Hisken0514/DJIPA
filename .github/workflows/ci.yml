@@ -25,5 +25,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+      - name: 單元測試（訊號處理，離線）
+        run: dotnet test Windows/Tests/DJIPA.Windows.Tests.csproj -c Release
       - name: 編譯
         run: dotnet build Windows/DJIPA.Windows.csproj -c Release

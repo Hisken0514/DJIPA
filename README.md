@@ -33,4 +33,5 @@ Release 的 App 以 Apple Development 憑證簽名，**未經 Apple 公證**，�
 - 打包：在 PowerShell 執行 `Windows\build.ps1`，得到 `Windows\publish\現場擴音.exe`。
 - 首次使用請到 設定 → 隱私權與安全性 → 麥克風，開啟「讓桌面應用程式存取麥克風」。
 - 與 macOS 版的差異：兩個裝置各自走一條串流，中間用緩衝與內插吸收時脈差異，延遲約 70 ms（macOS 約 11 ms）；未簽名，SmartScreen 可能要按「其他資訊 → 仍要執行」。
+- 單元測試：`dotnet test Windows/Tests/DJIPA.Windows.Tests.csproj`（16 項，離線不發聲，對應 macOS 的 `./test.sh`）。
 - `現場擴音.exe --list` 列出裝置、`--selftest` 靜音跑 4 秒檢查音訊回呼。

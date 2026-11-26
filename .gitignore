@@ -5,3 +5,5 @@ build/
 Windows/bin/
 Windows/obj/
 Windows/publish/
+Windows/Tests/bin/
+Windows/Tests/obj/
